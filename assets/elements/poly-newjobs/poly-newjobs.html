@@ -178,6 +178,8 @@
                                   localStorage.setItem("expense", JSON.stringify(item));
                                   page('/editor');
 
+                                      
+
                                 }
                             }.bind(this));
                         }
@@ -216,10 +218,21 @@
                             if (m.message.foo === 'update-list') {
                                    // this.$.fire('expenses-refresh');
                                 //pubnub.fire('expenses-refresh');
-                                app.$.homeworkList._expensesUpdated();
-                        
+                                if(m.message.school=== sessionStorage.getItem('school')){
+                                    app.$.homeworkList._expensesUpdated();
+                                    app.$.toast.text = 'Un Nuevo Trabajo a llegado!!';
+                                    app.$.toast.show();
+                                }
                       
-                            }                            
+                            }else{
+                                if(m.message.foo === 'update-status'){
+                                   // if(m.messsage.sender_id == sessionStorage.getItem('id')){
+                                        app.$.homeworkList._expensesUpdated();
+                                        app.$.toast.text = 'Nuevo Trabajo cotizado!!';
+                                        app.$.toast.show();
+                                  //  }
+                                }
+                            }                           
                         }
                     });
 

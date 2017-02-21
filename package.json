@@ -41,7 +41,13 @@
   "dependencies": {
     "browser-sync": "^2.18.8",
     "glob-all": "^3.1.0",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-jshint": "^2.0.4",
     "gulp-load-plugins": "^1.5.0",
+    "gulp-ruby-sass": "^2.1.1",
+    "gulp-uglify": "^1.5.4",
+    "jshint": "^2.9.4",
     "pagerjs": "^1.0.0",
     "parse": "^1.9.2",
     "run-sequence": "^1.2.2"
