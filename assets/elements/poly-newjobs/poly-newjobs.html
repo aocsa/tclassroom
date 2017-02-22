@@ -65,7 +65,7 @@
                 flex-direction: row-reverse;
             }
 
-            vaadin-grid /deep/ td.status-new {
+            vaadin-grid /deep/ td.status-nuevo {
                 color: var(--accent-color);
                 font-weight: 500;
             }
@@ -178,7 +178,7 @@
                                   localStorage.setItem("expense", JSON.stringify(item));
                                   page('/editor');
 
-                                      
+
 
                                 }
                             }.bind(this));
@@ -211,7 +211,7 @@
                         grid.header.getCell(0, 2).className = 'total';
                     });
 
-                    
+
 
                      pubnub.addListener({
                         message: function (m) {
@@ -223,20 +223,20 @@
                                     app.$.toast.text = 'Un Nuevo Trabajo a llegado!!';
                                     app.$.toast.show();
                                 }
-                      
+
                             }else{
                                 if(m.message.foo === 'update-status'){
                                    // if(m.messsage.sender_id == sessionStorage.getItem('id')){
                                         app.$.homeworkList._expensesUpdated();
-                                        app.$.toast.text = 'Nuevo Trabajo cotizado!!';
-                                        app.$.toast.show();
-                                  //  }
+                                      //  app.$.toast.text = 'Nuevo Trabajo cotizado!!';
+                                      //  app.$.toast.show();
+                                    //}
                                 }
-                            }                           
+                            }
                         }
                     });
 
-                }, 
+                },
                 _expensesUpdated : function () {
                     var grid = this.$.expenses;
                     grid.items = [];
@@ -353,7 +353,7 @@
                    reason: 'deleted'
                  });
                },
- 
+
 
                 _filtersChanged: function() {
                     if (this.$.expenses.items) {

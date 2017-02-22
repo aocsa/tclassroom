@@ -402,7 +402,7 @@
 
                             pubnub.publish({
                                 channel: 'chatChannel',
-                                message: {foo: 'update-status', sender_id: sessionStorage.getItem('id')}
+                                message: {foo: 'update-status', sender_id: user_sender.id, receiver_id: user_receiver.id}
                             },function(status, response){
                                 console.log(status.error, response);
                             });
