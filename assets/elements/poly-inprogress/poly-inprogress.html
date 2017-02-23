@@ -70,8 +70,9 @@
                 font-weight: 500;
             }
 
-            vaadin-grid /deep/ td.status-in_progress {
+            vaadin-grid /deep/ td.estado-en_progreso {
                 font-weight: 500;
+                color: #4CAF50;
                 font-style: italic;
                 text-transform: capitalize;
             }
@@ -118,10 +119,10 @@
             <table>
                 <colgroup>
                     <col name="deadline" width="120" sortable sort-direction="desc" />
-                    <col name="title" flex="1" min-width="145" sortable/>
+                    <col name="titulo" flex="1" min-width="145" sortable/>
                     <col name="total" width="90" sortable hidden/>
-                    <col name="status" width="120" sortable />
-                    <col name="description" flex="2" min-width="260" sortable/>
+                    <col name="estado" width="120" sortable />
+                    <col name="descripcion" flex="2" min-width="260" sortable/>
                 </colgroup>
             </table>
         </vaadin-grid>
@@ -173,7 +174,7 @@
                         if (selection.length === 1) {
                             grid.getItem(selection[0], function(err, item) {
                                 //this.fire('edit-expense', item);
-                                if (item.status === 'en progreso' ) {
+                                if (item.estado === 'en progreso' ) {
                                   localStorage.setItem("sender", JSON.stringify(item));
 
                                   page('/chat');
@@ -183,12 +184,12 @@
                     }.bind(this));
 
                     grid.cellClassGenerator = function(cell) {
-                        if (cell.columnName === 'status') {
-                            return 'status-' + cell.data.replace(/ /g, '-').toLowerCase();
+                        if (cell.columnName === 'estado') {
+                            return 'estado-' + cell.data.replace(/ /g, '-').toLowerCase();
                         } else if (cell.columnName === 'total') {
                             return 'total';
-                        } else if (cell.columnName === 'description') {
-                            return 'description';
+                        } else if (cell.columnName === 'descripcion') {
+                            return 'descripcion';
                         }
                     };
 
@@ -208,6 +209,13 @@
                         grid.header.getCell(0, 2).className = 'total';
                     });
 
+                    pubnub.addListener({
+                        message: function (m) {
+                            if(m.message.foo === 'update-statusProgress' && m.message.receiver_id === sessionStorage.getItem('id')){
+                                 app.$.inprogressList._expensesUpdated();
+                            }
+                        }
+                    });
                 },
 
                 llenarReceived: function(grid){
@@ -237,9 +245,9 @@
 
                                  itemsArray.push({_id:object.get('homework').id,
                                                  deadline: object.get('homework').get('deadline'),
-                                                 title: object.get('homework').get('title'),
-                                                 status: object.get('homework').get('status'),
-                                                 description: object.get('homework').get('description'),
+                                                 titulo: object.get('homework').get('title'),
+                                                 estado: object.get('homework').get('status'),
+                                                 descripcion: object.get('homework').get('description'),
                                                  homework_user_id: object.get('homework').get('homework_user').id,
                                                  _attachments: {receipt: object.get('homework').get('attachment')} });
                                }
@@ -278,12 +286,12 @@
                     }.bind(this));
 
                     grid.cellClassGenerator = function(cell) {
-                        if (cell.columnName === 'status') {
-                            return 'status-' + cell.data.replace(/ /g, '-').toLowerCase();
+                        if (cell.columnName === 'estado') {
+                            return 'estado-' + cell.data.replace(/ /g, '-').toLowerCase();
                         } else if (cell.columnName === 'total') {
                             return 'total';
-                        } else if (cell.columnName === 'description') {
-                            return 'description';
+                        } else if (cell.columnName === 'descripcion') {
+                            return 'descripcion';
                         }
                     };
 
@@ -322,14 +330,7 @@
                  });
                },
 
-               _expensesUpdated: function(evt) {
-                 /*this.$.expenseEditor.close();
-                 if (evt.detail.reason === 'deleted') {
-                   this.$.saveNotification.text = 'Expense was deleted';
-                 } else {
-                   this.$.saveNotification.text = 'Expense was saved';
-                 }
-                 this.$.saveNotification.show();*/
+               _expensesUpdated: function() {
                  var grid = this.$.expenses;
                  grid.items = [];
                  this.llenarReceived(grid);
@@ -365,7 +366,7 @@
                     // Filter
                     var result = this.expenses
                         .filter(function(expense) {
-                            return !(title && expense.title
+                            return !(title && expense.titulo
                                 .toUpperCase().indexOf(title.toUpperCase()) < 0);
                         })
                         .filter(function(expense) {
@@ -376,7 +377,7 @@
                         })
                         .filter(function(expense) {
                             if (status && status.length > 0) {
-                                return status.indexOf(expense.status) >= 0;
+                                return status.indexOf(expense.estado) >= 0;
                             } else {
                                 return false;
                             }

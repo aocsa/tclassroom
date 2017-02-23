@@ -164,23 +164,21 @@
                 <div class="form">
                     <form is="iron-form" id="form">
                         <iron-a11y-keys keys="enter" on-keys-pressed="_save"></iron-a11y-keys>
-                        <vaadin-combo-box name="merchant" id="merchant" items="[[merchants]]" value="{{expense.title}}" label="Merchant" allow-custom-value required></vaadin-combo-box>
+                        <paper-input name="merchant" id="merchant" value="{{expense.titulo}}" label="Titulo" required readonly></paper-input>
                         <paper-input name="total" id="total" value="{{expense.total}}" type="number" max="10000" label="Total" required step="any">
                             <div prefix>$</div>
                         </paper-input>
 
-                        <vaadin-date-picker label="Date" value="{{expense.deadline}}" id="date" name="date" required></vaadin-date-picker>
-                        <paper-textarea id="comment" name="comment" label="Comment" value="{{expense.description}}"></paper-textarea>
+                        <vaadin-date-picker label="Deadline" value="{{expense.deadline}}" id="date" name="date" required readonly></vaadin-date-picker>
+                        <paper-textarea id="comment" name="comment" label="Descripción" value="{{expense.descripcion}}" readonly></paper-textarea>
                     </form>
                 </div>
                 <div class="receipt">
-                    <vaadin-upload id="upload" accept="image/*" max-files="1" on-upload-before="_handleUpload" required>
                         <div class="file-list">
                             <div class="receipt-wrapper">
                                 <img src$="[[_receiptURL]]" alt="Receipt" hidden$="[[!_showReceipt(expense._attachments.*)]]">
                             </div>
                         </div>
-                    </vaadin-upload>
                 </div>
             </div>
             <div class="buttons-layout">
@@ -229,10 +227,6 @@
                 observers: ['_updateReceiptURL(expense._attachments.*)'],
 
                 ready: function() {
-                    this.$.upload.set('i18n.dropFiles.one', 'Drop receipt here...');
-                    this.$.upload.set('i18n.addFiles.one', 'Select receipt');
-
-
                 },
 
                 attached: function() {
@@ -261,7 +255,7 @@
                 },
 
                 _showReceipt: function() {
-                    return this.expense._id && this.expense.status !== 'new' ||
+                    return this.expense._id && this.expense.estado !== 'nuevo' ||
                         this.expense._attachments && this.expense._attachments.receipt;
                 },
 
@@ -347,7 +341,6 @@
                         });
                     }.bind(this), 'image/jpeg', 1000, 1000);
 
-                    this.$.upload.files = [];
                     e.preventDefault();
                 },
                 _chat: function() {
@@ -362,7 +355,7 @@
 
                         this._saveExpense(this.expense);
 
-                        console.log("Form Valido!! " + this.expense.title);
+                        console.log("Form Valido!! " + this.expense.titulo);
                     }
                     else{
                         console.log("Form NO valido " + this.expense._attachments.receipt.data );
@@ -431,14 +424,12 @@
                     }
 
                     this.set('expense.title', '');
-                    if (expense.title) {
-                        this.set('expense.title', expense.title);
+                    if (expense.titulo) {
+                        this.set('expense.title', expense.titulo);
                     }
 
-                    this.$.upload.files = [];
-
-                    if (!expense.status) {
-                        this.expense.status = 'new';
+                    if (!expense.estado) {
+                        this.expense.estado = 'nuevo';
                     }
 
                     if (expense.total) {
@@ -448,7 +439,7 @@
                         this.expense.homework_user_id = expense.homework_user_id;
                     }
 
-                    this.$.delete.hidden = !(this.expense._id && this.expense.status === 'new');
+                    this.$.delete.hidden = !(this.expense._id && this.expense.estado === 'nuevo');
 
                     // Ensure that the scroll is returned to top on mobile
                     this.async(function() {
