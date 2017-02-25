@@ -213,6 +213,8 @@
                         message: function (m) {
                             if(m.message.foo === 'update-statusProgress' && m.message.receiver_id === sessionStorage.getItem('id')){
                                  app.$.inprogressList._expensesUpdated();
+                                 app.$.toast.text = 'Nuevo trabajo en progreso!!';
+                                 app.$.toast.show();
                             }
                         }
                     });

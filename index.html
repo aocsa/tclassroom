@@ -180,7 +180,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         <div class="layout vertical fit" id="chat">
                            <div class="chat-list flex">
                              <template is="dom-repeat" items="{{messageList}}" as="message">
-                               <x-chat-list color="{{message.color}}" avatar="{{message.avatar}}" username="{{message.uuid}}" text="{{message.text}}" status="{{message.status}}" timestamp="{{message.timestamp}}"></x-chat-list>
+                               <x-chat-list color="{{message.color}}" avatar="{{message.avatar}}" username="{{message.uuid_real}}" text="{{message.text}}" status="{{message.status}}" timestamp="{{message.timestamp}}"></x-chat-list>
                              </template>
                            </div>
                            <div class="shim"></div>
@@ -225,15 +225,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   window.app.user = request.detail.response;
                 }
                 else {
-                  window.location = app.baseUrl + "login.html";
+                  window.location = "login.html";
                 }
             }
             else {
-                 window.location = app.baseUrl + "login.html";
+                 window.location = "login.html";
             }
         },
         error: function(error) {
-             window.location = app.baseUrl +  "/login.html";
+             window.location =  "/login.html";
         }
     });
     function StringSet() {
