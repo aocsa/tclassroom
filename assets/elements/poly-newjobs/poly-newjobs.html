@@ -176,13 +176,10 @@
                                 //this.fire('edit-expense', item);
                                 if (item.estado === 'nuevo' || item.estado === 'cotizado') {
 
-                                  localStorage.setItem("expense", JSON.stringify(item));
-                                  //page('/editor');
+                                    localStorage.setItem("expense", JSON.stringify(item));
+                                    page('/editor');
 
-                                  page('/chat');
-
-
-
+                                    //page('/chat');
                                 }
                             }.bind(this));
                         }

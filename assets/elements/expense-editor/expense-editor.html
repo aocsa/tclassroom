@@ -353,63 +353,13 @@
                     if (form.validate()) {
                         this.expense.total = parseFloat(this.expense.total);
 
-                        this._saveExpense(this.expense);
+                        saveCotization(this.expense);
 
                         console.log("Form Valido!! " + this.expense.titulo);
                     }
                     else{
                         console.log("Form NO valido " + this.expense._attachments.receipt.data );
                     }
-                },
-
-                _saveExpense: function(expense) {
-
-                    //this._db.save(expense);
-
-                    // PARSE YA ESTA INICIALIZADO EN POLY-PROFILE
-                    var UserClass = Parse.Object.extend("User");
-                    var user_sender = new UserClass();
-                    user_sender.id = sessionStorage.getItem('id');
-
-                    var user_receiver = new UserClass();
-                    user_receiver.id =  expense.homework_user_id;
-
-                    var TableMessage = Parse.Object.extend("Message");
-                    var tableMessage = new TableMessage();
-                    tableMessage.set("sender", user_sender);
-                    tableMessage.set("receiver", user_receiver);
-                    tableMessage.set("cost", expense.total);
-
-                    var HomeworkClass = Parse.Object.extend("Homework");
-                    var homework = new HomeworkClass();
-                    homework.id = expense._id;
-                    homework.set('status',  'cotizado' );
-
-                    tableMessage.set("homework", homework);
-
-                    tableMessage.save(null, {
-                        success: function(tableMessage) {
-                            console.log('New tableMessage created with objectId: ' + tableMessage.id);
-                            dialog.close();
-                            page('/');
-
-                            pubnub.publish({
-                                channel: 'chatChannel',
-                                message: {foo: 'update-status', sender_id: user_sender.id, receiver_id: user_receiver.id}
-                            },function(status, response){
-                                console.log(status.error, response);
-                            });
-
-                        },
-                        error: function(tableMessage, error) {
-                            console.log("Error: " + error.code + " " + error.message);
-                        }
-                    });
-
-                    app.$.toast.text = 'New object created with objectId: ' + tableMessage.id;
-                    app.$.toast.show();
-
-                    console.log('poly_app/_saveExpense() ' + "ID: " + sessionStorage.getItem('id'));
                 },
 
                 open: function(expense) {
