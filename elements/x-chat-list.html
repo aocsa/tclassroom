@@ -103,7 +103,14 @@ A single user list with a username, avatar, and desc.
 		<div class="flex">
 			<div class="username">{{username}}</div>
 			<div class="text">{{text}}</div>
-			<div id="cotizacion">
+			<div id="cotizacion" hidden = true >
+			 
+					<ul>
+					<strong>CLASE NUEVA</strong> <br><br>
+					<iron-icon icon="icons:book"></iron-icon> {{meta.title}} <br>
+					<iron-icon icon="icons:date-range"></iron-icon> {{meta.deadline}}  <br>
+ 					<iron-icon icon="icons:inbox"></iron-icon> {{meta.homework_user.name}}  <br>
+ 					</ul>
 			<div/>
 		</div>
 		
@@ -136,21 +143,10 @@ Polymer({
 		if (newvalue) {
 
 			this.meta = newvalue;
-			var e = $('#cotizacion');
-			var shtml = '<div id="iconos">' + 
- 				'</div>' + 
-				'<ul>'+
-					'<strong>CLASE NUEVA</strong> <br><br>' + 
-					'<iron-icon icon="icons:book"></iron-icon> Econometría <br>'+
-					'<iron-icon icon="icons:date-range"></iron-icon> Sabado, 20 <br>'+
-					'<iron-icon icon="icons:schedule"></iron-icon> 12:00 - 13:00 <br>'+
-					'<iron-icon icon="icons:inbox"></iron-icon> Skype: albertoteach <br>'+
-					'<iron-icon icon="editor:monetization-on"></iron-icon> 12,00 $ <br>'+
-				'</ul>';
-			e.html (shtml) ;
+			this.$.cotizacion.hidden = false;
 			this.text = '';
 
-		}
+		}  
 	},
   	_backgroundImage: function(avatar) {
       return 'background-image: url('+avatar+');';
