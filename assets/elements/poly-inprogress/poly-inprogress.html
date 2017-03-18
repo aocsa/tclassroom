@@ -175,9 +175,13 @@
                             grid.getItem(selection[0], function(err, item) {
                                 //this.fire('edit-expense', item);
                                 if (item.estado === 'en progreso' ) {
-                                  localStorage.setItem("sender", JSON.stringify(item));
+                                   var channel =
+                                         item._id + '-' +
+                                         item.homework_user_id + '-' +
+                                         sessionStorage.getItem('id') ;
 
-                                  page('/chat');
+                                   localStorage.setItem("channel", JSON.stringify(channel));
+                                   page('/chat');
                                 }
                             }.bind(this));
                         }

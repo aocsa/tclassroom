@@ -174,13 +174,11 @@
                         if (selection.length === 1) {
                             grid.getItem(selection[0], function(err, item) {
                                 //this.fire('edit-expense', item);
-                                if (item.estado === 'nuevo' || item.estado === 'cotizado') {
-
-                                    localStorage.setItem("expense", JSON.stringify(item));
+                                if (item.estado === 'nuevo' ) {
+                                    localStorage.setItem("expense", JSON.stringify(item));
                                     page('/editor');
-
-                                    //page('/chat');
                                 }
+
                             }.bind(this));
                         }
                     }.bind(this));
@@ -264,6 +262,7 @@
                                var object = results[i];
                                if (object.get('homework').get('status') === 'nuevo' || object.get('homework').get('status') === 'cotizado' ){
                                  itemsArray.push({_id:object.get('homework').id,
+                                                 sender_id : object.get('sender').id,
                                                  deadline: object.get('homework').get('deadline'),
                                                  titulo: object.get('homework').get('title'),
                                                  estado: object.get('homework').get('status'),
