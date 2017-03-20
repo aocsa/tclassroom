@@ -37,8 +37,8 @@ function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPaymen
     tableMessage.save(null, {
         success: function(tableMessage) {
             console.log('New tableMessage created with objectId: ' + tableMessage.id);
-            dialog.close();
-            page('/');
+            //dialog.close();
+            //page('/');
 
             pubnub.publish({
                 channel: 'chatChannel',

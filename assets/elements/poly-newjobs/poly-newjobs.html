@@ -119,9 +119,9 @@
             <table>
                 <colgroup>
                     <col name="deadline" width="120" sortable sort-direction="desc" />
-                    <col name="titulo" flex="1" min-width="145" sortable/>
+                    <col name="titulo" flex="1" min-width="130" max-width="150" sortable/>
                     <col name="total" width="90" sortable hidden/>
-                    <col name="estado" width="120" sortable />
+                    <col name="estado" width="100" sortable />
                     <col name="descripcion" flex="2" min-width="260" sortable/>
                 </colgroup>
             </table>
@@ -174,9 +174,17 @@
                         if (selection.length === 1) {
                             grid.getItem(selection[0], function(err, item) {
                                 //this.fire('edit-expense', item);
-                                if (item.estado === 'nuevo' ) {
-                                    localStorage.setItem("expense", JSON.stringify(item));
-                                    page('/editor');
+                                if (item.estado === 'nuevo' || item.estado === 'cotizado') {
+                                   // localStorage.setItem("expense", JSON.stringify(item));
+                                    //page('/editor');
+                                    var channel =
+                                         item._id + '-' +
+                                         item.homework_user_id + '-' +
+                                         sessionStorage.getItem('id') ;
+
+                                   localStorage.setItem("channel", JSON.stringify(channel));
+                                   localStorage.setItem("expense", JSON.stringify(item));
+                                   page('/chat');
                                 }
 
                             }.bind(this));
@@ -268,6 +276,7 @@
                                                  estado: object.get('homework').get('status'),
                                                  descripcion: object.get('homework').get('description'),
                                                  homework_user_id: object.get('homework').get('homework_user').id,
+                                                 //homework_user_name:object.get('homework').get('homework_user').get('name'),//not found
                                                  _attachments: {receipt: object.get('homework').get('attachment')} });
                                }
                            }

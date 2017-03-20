@@ -70,7 +70,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             var PolyChat = document.querySelector('#poly-chat');
             var channel = JSON.parse(localStorage.getItem("channel"));
+            var localObj = JSON.parse(localStorage.getItem("expense"));
 
+            PolyChat.expensefunction(localObj);
             PolyChat.updateChannel(channel);//+ nameProfesson
         });
         page('/editor', function() {

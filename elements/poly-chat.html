@@ -6,13 +6,20 @@
         <div class="layout vertical fit" id="chat">
           <div class="chat-list flex" id = "chatlayout">
             <template is="dom-repeat" items="{{messageList}}" as="message">
-              <x-chat-list color="{{message.color}}" avatar="{{message.avatar}}" username="{{message.uuid}}" text="{{message.text}}" status="{{message.status}}" timestamp="{{message.timestamp}}" meta={{message.meta}}></x-chat-list>
+              <x-chat-list color="{{message.color}}" avatar="{{message.avatar}}" titlemsg="{{message.titlemsg}}" username="{{message.username}}" text="{{message.text}}" status="{{message.status}}" timestamp="{{message.timestamp}}" meta={{message.meta}}></x-chat-list>
             </template>
           </div>
           <div class="shim"></div>
-          <div class="send-message layout horizontal">
+
+          <div class="send-message layout horizontal" id="message_normal" hidden=false>
             <paper-input class="flex" label="Type message..." id="input" value="{{input}}" on-keyup="checkKey"></paper-input>
             <paper-fab icon="send" id="sendButton" on-tap="sendMyMessage"></paper-fab>
+          </div>
+          <div class="send-message layout horizontal" id="message_cotizacion" hidden=true>
+            <paper-input class="flex" label="Cotizar Tarea..." type="number" id="input" value="{{input}}" on-keyup="checkKey">
+              <div prefix>$ </div>
+            </paper-input>
+            <paper-fab icon="send" id="sendButton" on-tap="sendMyCotizacion"></paper-fab>
           </div>
         </div>
 
@@ -28,18 +35,32 @@
         is: 'poly-chat',
         properties: {
           messageList : [],
-            uuid : Object,
-            avatar: Object,
-            color: Object,
-            cat: Object,
-            template: Object,
-            pastMsgs: [],
-            cats : [],
-            pubnub : Object,
-            channel: {
-              type: Object
-           }
+          uuid : Object,
+          avatar: Object,
+          color: Object,
+          cat: Object,
+          template: Object,
+          pastMsgs: [],
+          cats : [],
+          pubnub : Object,
+          channel: {
+            type: Object
+          },
+          expense: {
+              type: Object,
+              value: null,
+              observer: 'expensefunction'
+          }
 
+        },
+        expensefunction : function (expenseValue) {
+          if(expenseValue){
+              this.expense = expenseValue;
+              if(expenseValue.estado=='nuevo'){//El profesor tiene que cotizar
+                this.$.message_normal.hidden = true;
+                this.$.message_cotizacion.hidden = false;                
+              }
+          }
         },
         updateChannel : function (newChannel) {
               this.channel = newChannel;
@@ -116,6 +137,7 @@
               this.pubnub = new PubNub({ publishKey : 'pub-c-467437f5-5346-4f8c-9ddf-2de1c90a93c8', subscribeKey : 'sub-c-52679430-efef-11e6-b753-0619f8945a4f' });
 
               // this.updateChannel (this.channel);
+              this.expense = JSON.parse(localStorage.getItem("expense"));
           },
           randomColor : function() {
             var colors = [  'chocolate' ];
@@ -123,17 +145,26 @@
           },
 
           randomCat : function() {
-            var cats = ['lion'];
+            var cats = ['profesor'];
             return cats[(Math.random() * cats.length) >>> 0];
           },
           checkKey : function(e) {
             if(e.keyCode === 13 || e.charCode === 13) {
-              this.publish();
+              if(this.$.message_cotizacion.hidden==false){
+                this.publishCotizacion();
+              }else{
+                this.publish();
+              }
+              
             }
           },
           // Sending a chat message by clicking a "Send" button
           sendMyMessage : function(e) {
             this.publish();
+          },
+          // Enviar cotizacion al alumno
+          sendMyCotizacion : function(e) {
+            this.publishCotizacion();
           },
 
         getListWithOnlineStatus : function(list) {
@@ -234,6 +265,38 @@
           }
         },
 
+        publishCotizacion: function(){
+          if(!this.template.input)
+            return;
+
+          //Ya tenemos el expense= localstorage.getItem('expense')
+          var metaObj = {
+            title:this.expense.titulo,
+            deadline:this.expense.deadline,
+            description: this.expense.descripcion,
+            //homework_user: {name: this.expense.homework_user_name},
+            costo: parseFloat(this.template.input)
+          };
+          this.expense.total  = parseFloat(this.template.input);
+          saveCotization(this.expense);
+
+          this.pubnub.publish(  {
+            message: {
+                 uuid: this.uuid,
+                 username: sessionStorage.getItem('username'),
+                avatar: this.avatar,
+                titlemsg: "TAREA COTIZADA",
+                color: this.color,
+                text: '',
+                timestamp: new Date().toISOString(),
+                meta: metaObj
+            },
+            channel: this.channel
+          });
+          this.template.input = '';
+
+        },
+
         publish : function() {
           if(!this.template.input)
             return;
@@ -242,6 +305,7 @@
           this.pubnub.publish(  {
             message: {
                  uuid: this.uuid,
+                 username: sessionStorage.getItem('username'),
                 avatar: this.avatar,
                 color: this.color,
                 text: this.template.input,
