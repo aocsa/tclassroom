@@ -53,3 +53,27 @@ function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPaymen
         }
     });
 }
+
+function onerrorImg(source){
+    //alert("error image load");
+    source.hidden = true;
+}
+
+function sendMessageChangeInput(expense,contexto){
+    if(expense.estado=='nuevo'){//El profesor tiene que cotizar
+        contexto.$.message_normal.hidden = true;
+        contexto.$.message_cotizacion.hidden = false;  
+        contexto.$.inputCotizar.enable=true;   
+        contexto.$.inputCotizar.disabled = false;
+        contexto.$.inputCotizar.label = "Cotizar tarea .."; 
+                 
+    }
+    if(expense.estado=='cotizado'){//Bloqueamos sendmessage para que el alumno responda con el pago
+        contexto.$.message_normal.hidden = true;
+        contexto.$.message_cotizacion.hidden = false; 
+        
+        contexto.$.inputCotizar.disabled = true;
+        contexto.$.inputCotizar.enable=false; 
+        contexto.$.inputCotizar.label = "Esperar a que el alumno realize el pago";
+    }
+}

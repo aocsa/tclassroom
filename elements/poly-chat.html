@@ -16,7 +16,7 @@
             <paper-fab icon="send" id="sendButton" on-tap="sendMyMessage"></paper-fab>
           </div>
           <div class="send-message layout horizontal" id="message_cotizacion" hidden=true>
-            <paper-input class="flex" label="Cotizar Tarea..." type="number" id="input" value="{{input}}" on-keyup="checkKey">
+            <paper-input class="flex" label="Cotizar Tarea..." type="number" id="inputCotizar" value="{{input}}" on-keyup="checkKey">
               <div prefix>$ </div>
             </paper-input>
             <paper-fab icon="send" id="sendButton" on-tap="sendMyCotizacion"></paper-fab>
@@ -56,10 +56,7 @@
         expensefunction : function (expenseValue) {
           if(expenseValue){
               this.expense = expenseValue;
-              if(expenseValue.estado=='nuevo'){//El profesor tiene que cotizar
-                this.$.message_normal.hidden = true;
-                this.$.message_cotizacion.hidden = false;                
-              }
+              sendMessageChangeInput(expenseValue,this);
           }
         },
         updateChannel : function (newChannel) {
@@ -295,6 +292,10 @@
           });
           this.template.input = '';
 
+          //Bloqueamos sendmessage para que el alumno responda con el pago
+          this.$.inputCotizar.disabled = true;
+          //cambiamos input laabel de inputcotizar a = Esperar pago del estudiante
+          this.$.inputCotizar.label = "Esperar a que el alumno realize el pago";
         },
 
         publish : function() {
