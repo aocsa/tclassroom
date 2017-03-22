@@ -76,4 +76,9 @@ function sendMessageChangeInput(expense,contexto){
         contexto.$.inputCotizar.enable=false; 
         contexto.$.inputCotizar.label = "Esperar a que el alumno realize el pago";
     }
+
+    if(expense.estado=='en progreso'){//puede hablar normalmente
+        contexto.$.message_normal.hidden = false;
+        contexto.$.message_cotizacion.hidden = true; 
+    }
 }
