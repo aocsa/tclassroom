@@ -82,3 +82,56 @@ function sendMessageChangeInput(expense,contexto){
         contexto.$.message_cotizacion.hidden = true; 
     }
 }
+
+function verificarSchool(){
+    if(sessionStorage.getItem('school')=='null'){
+        selectSchoolDialog.open();
+    }
+}
+
+function actualizarSchool(){
+    console.log("actualizarSchool");
+    var combobox =  document.querySelector('#selectSchool');
+    var selectCombobox = combobox.selectedItem;
+    if(selectCombobox){
+        var User_ = Parse.Object.extend("User");
+        var myuser = new User_();
+        myuser.id = sessionStorage.getItem('id');
+        myuser.set('school',selectCombobox);
+        myuser.save(null, {
+            success: function(tableExpense) {
+                sessionStorage.setItem('school', selectCombobox);
+                selectSchoolDialog.close();
+            },
+            error: function(error) {
+                console.log("Error: " + error.code + " " + error.message);
+            }
+        });
+    }
+}
+
+function StringSet() {
+    var setObj = {}, val = {};
+
+    this.add = function(str) {
+        setObj[str] = val;
+    };
+
+    this.contains = function(str) {
+        return setObj[str] === val;
+    };
+
+    this.remove = function(str) {
+        delete setObj[str];
+    };
+
+    this.values = function() {
+        var values = [];
+        for (var i in setObj) {
+            if (setObj[i] === val) {
+                values.push(i);
+            }
+        }
+        return values;
+    };
+}

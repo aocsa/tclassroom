@@ -31,7 +31,7 @@
     <!-- Tile icon for Win8 (144x144) -->
     <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
-    <title>P O L Y</title>
+    <title>Salvando el semestre</title>
 
     <link rel="stylesheet" is="custom-style" href="assets/dist/css/main.min.css">
 
@@ -55,39 +55,13 @@
 
 
 
-    <script>
-        var googleUser = {};
-        var startApp = function () {
-            gapi.load('auth2', function () {
-                // Retrieve the singleton for the GoogleAuth library and set up the client.
-                auth2 = gapi.auth2.init({
-                    client_id: '549624147622-qo2sbncpb3t8ui9fcda07kt3r5dim765.apps.googleusercontent.com',
-                    cookiepolicy: 'single_host_origin',
-                    // Request scopes in addition to 'profile' and 'email'
-                    //scope: 'additional_scope'
-                });
-                attachSignin(document.getElementById('googleBnt'));
-            });
-        };
-        function attachSignin(element) {
-            console.log(element.id);
-            auth2.attachClickHandler(element, {},
-                function (googleUser) {
-                    document.getElementById('name').innerText = "Signed in: " + googleUser.getBasicProfile().getName();
-                }, function (error) {
-                    alert(JSON.stringify(error, undefined, 2));
-                });
-        }
-    </script>
-
-
-    <script src="assets/js/app.js"></script>
     <!-- Importing the elements file -->
     <link rel="import" href="elements.html">
+    <!-- Funciones neesarias -->
+    <script src="assets/js/funcionesLogin.js"></script>
 
 </head>
 <body unresolved>
-
 <div id="container">
     <div class="layout vertical content">
         <div class="flex">
@@ -95,88 +69,49 @@
         </div>
 
         <div class="flex-10 layout vertical center center-justified">
-            <p class="big_text">salvando el semestre</p>
+            <p class="big_text">Salvando el semestre</p>
 
             <div class="vertical layout">
                 <div class="flex-1" id="facebookBnt">
                     <a class="btn btn-block btn-social btn-facebook center">
-                        <span class="fa fa-facebook"></span> Accede con Facebook
+                        <span class="fa fa-facebook"></span> Sign in with Facebook
                     </a>
                     <p></p>
-                </div>
-
-
-                <div class="flex-4" id="googleBnt">
-                    <a class="btn btn-block btn-social btn-google">
-                        <span class="fa fa-google"></span> Accede con Google
-                    </a>
                 </div>
             </div>
 
 
-            <div onclick="app.helpers.clickHandler(event)">
+            <div onclick="app_login.helpers.clickHandler(event)">
                 <poly-login></poly-login>
                 <poly-signup></poly-signup>
             </div>
         </div>
         <div class="flex layout vertical end-justified footer">
-            <p>Universitarios enseñando a Universitarios</p>
+            <p>Universitarios enseñando a universitarios</p>
         </div>
     </div>
 </div>
 <script>
-    startApp();
 
     Parse.initialize("nyctwo");
-Parse.serverURL = 'http://107.170.22.36:1337/parse';
-    // Load the SDK asynchronously
-    window.fbAsyncInit = function () {
-        Parse.FacebookUtils.init({ // this line replaces FB.init({
-            appId: '1070001599751830', // Facebook App ID
-            status: true,  // check Facebook Login status
-            cookie: true,
-            xfbml: true,  // initialize Facebook social plugins on the page
-            version: 'v2.2' // point to the latest Facebook Graph API version
-        });
-
-        // Run code after the Facebook SDK is loaded.
-    };
-
-    (function (d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {
-            return;
-        }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
+    Parse.serverURL = 'http://107.170.22.36:1337/parse';
+    
+    InitAPIFacebookWeb();
 
 
     $("#facebookBnt").click(function () {
-        Parse.FacebookUtils.logIn(null, {
-            success: function (user) {
-
-                sessionStorage.setItem('id', user.id);
-                sessionStorage.setItem('token', user.getSessionToken());
-                window.location = '/studychat/home.html';
-            },
-            error: function (user, error) {
-                alert("User cancelled the Facebook login or did not fully authorize.");
-            }
-        });
+        loginWebFacebook();
     });
 
 
 </script>
 <script >
 
-    var App = function(){
+    var AppLogin = function(){
         this.is_mobile = false;
         this.init = function(){
             if(location.pathname == "/" && sessionStorage.getItem('token')) {
-                location.href = location.href;
+                location.href = "makesomenoice";
             }
         };
         this.helpers = {
@@ -204,11 +139,10 @@ Parse.serverURL = 'http://107.170.22.36:1337/parse';
         this.songIndex = 0;
 
     };
-    var app = new App();
-    app.init();
+    var app_login = new AppLogin();
+    app_login.init();
 
 </script>
-
 
 </body>
 </html>

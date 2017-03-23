@@ -61,6 +61,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="stylesheet" is="custom-style" href="bower_components/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" is="custom-style" href="bower_components/bootstrap-social/bootstrap-social.css">
 
+    <script src="bower_components/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="bower_components/sweetalert/dist/sweetalert.css">
+
     <!-- Importing the elements file -->
     <link rel="import" href="elements.html">
 
@@ -139,7 +142,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                  <paper-icon-button icon="refresh"     ></paper-icon-button>
 
                 <a data-route="profile" href="{{baseUrl}}profile">
-                    <paper-icon-button icon="search"></paper-icon-button>
+                    <paper-icon-button icon="social:person"></paper-icon-button>
                 </a>
 
                 <!-- Application name -->
@@ -191,10 +194,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.4.4.js"></script>
 <!-- Funciones neesarias -->
 <script src="assets/js/funciones.js"></script>
+<script src="assets/js/funcionesLogin.js"></script>
 
 <script>
     Parse.initialize("nyctwo");
-Parse.serverURL = 'http://107.170.22.36:1337/parse';
+    Parse.serverURL = 'http://107.170.22.36:1337/parse';
+
+    InitAPIFacebookWeb();
 
     var GameScore = Parse.Object.extend("User");
     var query = new Parse.Query(GameScore);
@@ -202,13 +208,23 @@ Parse.serverURL = 'http://107.170.22.36:1337/parse';
     query.find({
         success: function(results) {
             if (results.length == 1 ) {
-                this.user = request.detail.response;
-
-                if (this.user.user_type === "Profesor") {
-                  window.app.user = request.detail.response;
+                if (sessionStorage.getItem('user_type') === "Profesor") {
+                    verificarSchool();
                 }
                 else {
-                  window.location = "login.html";
+
+                  swal({
+                        title: "Advertencia!",
+                        text: "Tu te registraste como alumno, usa la app del alumno!",
+                        showCancelButton: false,
+                        closeOnConfirm: false,
+                        showLoaderOnConfirm: true,
+                    },
+                    function(){
+                        logout();
+                        window.location = "login.html";
+                    });
+
                 }
             }
             else {
@@ -219,31 +235,7 @@ Parse.serverURL = 'http://107.170.22.36:1337/parse';
              window.location =  "/login.html";
         }
     });
-    function StringSet() {
-        var setObj = {}, val = {};
-
-        this.add = function(str) {
-            setObj[str] = val;
-        };
-
-        this.contains = function(str) {
-            return setObj[str] === val;
-        };
-
-        this.remove = function(str) {
-            delete setObj[str];
-        };
-
-        this.values = function() {
-            var values = [];
-            for (var i in setObj) {
-                if (setObj[i] === val) {
-                    values.push(i);
-                }
-            }
-            return values;
-        };
-    }
+    
     
    var pubnub = new PubNub({
         publishKey : 'pub-c-467437f5-5346-4f8c-9ddf-2de1c90a93c8',

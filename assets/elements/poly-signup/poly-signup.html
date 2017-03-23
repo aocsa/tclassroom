@@ -18,7 +18,7 @@
         <paper-button data-dialog="signup" raised>Registrate</paper-button>
 
         <paper-dialog id="signup" role="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation"
-                      with-backdrop>
+                      with-backdrop modal>
             <h2>Registrate</h2>
             <paper-dialog-scrollable>
                 <paper-input name="name" value="{{user.name}}" error-message="we need your name" required label="Nombre completo">
@@ -56,6 +56,7 @@
                 </vaadin-combo-box>
             </paper-dialog-scrollable>
             <div class="buttons">
+                <paper-button on-click="closeSignup">Cancelar</paper-button>
                 <paper-button on-click="signup">Registrate</paper-button>
             </div>
         </paper-dialog>
@@ -70,7 +71,9 @@
                     value: {}
                 }
             },
-
+            closeSignup: function(){
+                signup.close();
+            },
             signup: function () {
 
                 var inputs = this.querySelectorAll('input'),
@@ -83,7 +86,7 @@
                 }
 
                 Parse.initialize("nyctwo");
-Parse.serverURL = 'http://107.170.22.36:1337/parse';
+                Parse.serverURL = 'http://107.170.22.36:1337/parse';
 
                 //var currentUser = Parse.User.current();
                 //currentUser.logOut();
