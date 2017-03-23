@@ -54,6 +54,15 @@ function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPaymen
     });
 }
 
+function verificarMensajePay(message,context){
+    if(message.meta){
+        if(message.meta.codeTransaction){
+            context.$.message_normal.hidden = false;
+            context.$.message_cotizacion.hidden = true; 
+        }
+    }
+}
+
 function onerrorImg(source){
     //alert("error image load");
     source.hidden = true;

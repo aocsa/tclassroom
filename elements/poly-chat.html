@@ -221,6 +221,9 @@
           if(o.message) {
                console.log(o.message);
               this.displayChatList(this.template.messageList.concat(this.getListWithOnlineStatus( [o.message] )));
+              
+				      //si tiene meta y codetransaction, si o si se habilita el message_normal y se oculta el message_cotizacion
+              verificarMensajePay(o.message,this);
           } 
         },
 
