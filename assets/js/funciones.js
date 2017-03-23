@@ -56,10 +56,33 @@ function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPaymen
 
 function verificarMensajePay(message,context){
     if(message.meta){
-        if(message.meta.codeTransaction){
+        if(message.meta.codeTransaction){//llegada del mensaje de pago
             context.$.message_normal.hidden = false;
             context.$.message_cotizacion.hidden = true; 
         }
+        else{
+            if(message.meta.costo){//La tarea a sido cotizada
+                context.$.message_normal.hidden = true;
+                context.$.message_cotizacion.hidden = false; 
+                
+                context.$.inputCotizar.disabled = true;
+                context.$.inputCotizar.enable=false; 
+                context.$.inputCotizar.label = "Esperar a que el alumno realize el pago";
+            }else{//es una tarea nueva
+                context.$.message_normal.hidden = true;
+                context.$.message_cotizacion.hidden = false;  
+                context.$.inputCotizar.enable=true;   
+                context.$.inputCotizar.disabled = false;
+                context.$.inputCotizar.label = "Cotizar tarea .."; 
+            }
+        }
+    }
+}
+
+function verificarTareaNoCotizada(listMsg,context){
+    var tam = listMsg.length;//solo verificamos el ultimo mensaje
+    if(tam>0){
+        verificarMensajePay(listMsg[tam-1],context);
     }
 }
 

@@ -89,6 +89,7 @@
                          if(response && response.messages.length > 0) {
                             polymerObj.pastMsgs = polymerObj.getListWithOnlineStatus(response.messages);
                             polymerObj.displayChatList(polymerObj.pastMsgs);
+                            verificarTareaNoCotizada(polymerObj.pastMsgs,polymerObj);
                         }
                   }
               );
