@@ -56,24 +56,17 @@ function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPaymen
 
 function verificarMensajePay(message,context){
     if(message.meta){
-        if(message.meta.codeTransaction){//llegada del mensaje de pago
-            context.$.message_normal.hidden = false;
-            context.$.message_cotizacion.hidden = true; 
-        }
-        else{
-            if(message.meta.costo){//La tarea a sido cotizada
-                context.$.message_normal.hidden = true;
-                context.$.message_cotizacion.hidden = false; 
-                
-                context.$.inputCotizar.disabled = true;
-                context.$.inputCotizar.enable=false; 
-                context.$.inputCotizar.label = "Esperar a que el alumno realize el pago";
-            }else{//es una tarea nueva
-                context.$.message_normal.hidden = true;
-                context.$.message_cotizacion.hidden = false;  
-                context.$.inputCotizar.enable=true;   
-                context.$.inputCotizar.disabled = false;
-                context.$.inputCotizar.label = "Cotizar tarea .."; 
+        if(message.meta.title){
+            if(message.meta.codeTransaction){//llegada del mensaje de pago
+                context.$.message_normal.hidden = false;
+                context.$.message_cotizacion.hidden = true; 
+            }
+            else{
+                if(message.meta.costo){//La tarea a sido cotizada
+                    sendMessageChangeInput('cotizado',context);
+                }else{//es una tarea nueva
+                    sendMessageChangeInput('nuevo',context);
+                }
             }
         }
     }
@@ -91,8 +84,8 @@ function onerrorImg(source){
     source.hidden = true;
 }
 
-function sendMessageChangeInput(expense,contexto){
-    if(expense.estado=='nuevo'){//El profesor tiene que cotizar
+function sendMessageChangeInput(estado,contexto){
+    if(estado=='nuevo'){//El profesor tiene que cotizar
         contexto.$.message_normal.hidden = true;
         contexto.$.message_cotizacion.hidden = false;  
         contexto.$.inputCotizar.enable=true;   
@@ -100,7 +93,7 @@ function sendMessageChangeInput(expense,contexto){
         contexto.$.inputCotizar.label = "Cotizar tarea .."; 
                  
     }
-    if(expense.estado=='cotizado'){//Bloqueamos sendmessage para que el alumno responda con el pago
+    if(estado=='cotizado'){//Bloqueamos sendmessage para que el alumno responda con el pago
         contexto.$.message_normal.hidden = true;
         contexto.$.message_cotizacion.hidden = false; 
         
@@ -109,7 +102,7 @@ function sendMessageChangeInput(expense,contexto){
         contexto.$.inputCotizar.label = "Esperar a que el alumno realize el pago";
     }
 
-    if(expense.estado=='en progreso'){//puede hablar normalmente
+    if(estado=='en progreso'){//puede hablar normalmente
         contexto.$.message_normal.hidden = false;
         contexto.$.message_cotizacion.hidden = true; 
     }
@@ -166,4 +159,113 @@ function StringSet() {
         }
         return values;
     };
+}
+function isFileImage(type){
+    var typeImg = "image/";
+    var tam = typeImg.length;
+    for(var i=0;i<tam;i++){
+        if(type[i]!=typeImg[i]){
+            return false;
+        }
+    }
+    return true;
+}
+function prepareSaveFile(receipt){
+    var name = receipt.name;
+    var file = receipt.data;
+    if(isFileImage(receipt.type)){
+        file = new File([receipt.data],name);
+    }
+    var parseFile = new Parse.File(name, file);
+    parseFile.save().then(function() {
+        // The file has been saved to Parse.
+    }, function(error) {
+        // The file either could not be read, or could not be saved to Parse.
+        console.log('error parseFile');
+    });
+    return parseFile;
+}
+function saveFileChat(file,idHomework,channel,context){
+    var fileObj = new Object();
+    fileObj.name =file.name;
+    fileObj.type=file.type;
+    fileObj.data =file;
+
+    context.$.inputnormal.disabled = true;
+    context.$.inputnormal.enable=false; 
+    context.$.inputnormal.label = "Esperando en subir archivo...";
+
+    var parseFile = prepareSaveFile(fileObj);
+
+    var HomeworkClass = Parse.Object.extend("Homework");
+    var homework = new HomeworkClass();
+    homework.id = idHomework;
+    
+    var FileChatClass = Parse.Object.extend("FileChatHomework");
+    var filechatObj = new FileChatClass();
+    filechatObj.set("attachment", parseFile);
+    filechatObj.set("idHomework",homework);
+
+    filechatObj.save(null, {
+        success: function(filechatObj) {
+            sendMsgFileChat(filechatObj.get('attachment')._url,channel,context);
+        },
+        error: function(filechatObj, error) {
+            console.log("Error: " + error.code + " " + error.message);
+        }
+    });
+
+}
+function manejarDivCotizacionChat(context){
+    if(context.meta.attachment){
+        context.$.imagenId.hidden = false;
+        context.$.fileLink.hidden = false;
+    }
+    if(context.meta.costo){//solo existe si se cotiza
+        context.$.costo.hidden=false;
+    }
+    if(context.meta.homework_user){//no hay homework_user cuando se cotiza
+        context.$.homework_user.hidden=false;
+    }
+    
+    if(context.meta.codeTransaction){//solo cuando el alumno paga
+        context.$.codeTransfer.hidden=false;
+    }
+    //Para mostrar solo la imagen o link del archivo si es que se envia archivos adjuntos en el chat
+    if(!context.meta.title){
+        context.$.contentImportanteCotizacion.hidden=true;
+    }
+    if(context.meta.title){
+        context.$.contentImportanteCotizacion.hidden=false;
+    }
+}
+function sendMsgFileChat(myurl,mychannel,context){
+    var pubnub = new PubNub({ publishKey : 'pub-c-467437f5-5346-4f8c-9ddf-2de1c90a93c8', subscribeKey : 'sub-c-52679430-efef-11e6-b753-0619f8945a4f' });
+   var mycolor = 'moss';
+   var mycat = 'profesor';
+   var   myuuid = mycolor + '-' + mycat;
+   var    myavatar = 'images/' + mycat + '.jpg';
+    var myAttachment = new Object();
+    myAttachment.url = myurl;
+
+    var metaObj = {
+        attachment: myAttachment
+    };
+
+    pubnub.publish(  {
+        message: {
+            uuid: myuuid,
+            username : sessionStorage.getItem('username'),
+            avatar: myavatar,
+            color: mycolor,
+            text: '',
+            timestamp: new Date().toISOString(),
+            meta:   metaObj
+        },
+        channel:  mychannel
+    });
+
+    context.$.inputnormal.disabled = false;
+    context.$.inputnormal.enable=true; 
+    context.$.inputnormal.label = "Type message...";
 }

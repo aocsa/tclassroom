@@ -261,6 +261,9 @@
                            }
                            console.log(itemsArray);
                            grid.items = itemsArray;
+                           var app_ = $("#app");
+                            var paperBadg = app_[0];
+                            paperBadg.$.pbadgeEprogress.label = itemsArray.length;
                        },
                        error: function(error) {
                            console.log("Error: " + error.code + " " + error.message);
