@@ -15,16 +15,55 @@ function saveCotization(expense){
     homework.id = expense._id;
     homework.set('status',  'cotizado' );
 
-    saveTableMessage(user_sender,user_receiver,expense.total,homework,'null');
+    verificarMessageExist(user_sender,user_receiver,expense.total,homework,'null');
 
     app.$.toast.text = 'New object created Message';
     app.$.toast.show();
 
 }
 
-function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPayment){
+function verificarMessageExist(userSender,userReceiver,cost,PointHomework,PointPayment){
+
+        var TableMessage = Parse.Object.extend("Message");
+        var query = new Parse.Query(TableMessage);
+
+        var userClass = Parse.Object.extend("User");
+        var userSend = new userClass( );
+        userSend.id =  userSender.id;
+        var userRec = new userClass( );
+        userRec.id =  userReceiver.id;
+
+        var homeworkClass = Parse.Object.extend("Homework");
+        var homeworkObj = new homeworkClass( );
+        homeworkObj.id =  PointHomework.id;
+
+        query.equalTo("receiver",   userRec);
+        query.equalTo("sender",   userSend);
+        query.equalTo("homework",   homeworkObj);
+
+        query.find({
+            success: function(results) {
+                if(results.length>=1){//lo normal es que sea ==1
+                    var object = results[0];
+                    saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPayment,object.id);
+                }else{
+                    saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPayment,"null");
+                }
+            },
+            error: function(error) {
+                console.log("Error: " + error.code + " " + error.message);
+            }
+        });
+
+}
+
+function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPayment,idMessage){
     var TableMessage = Parse.Object.extend("Message");
     var tableMessage = new TableMessage();
+    if(idMessage!="null"){
+        tableMessage.id = idMessage;
+    }
+
     tableMessage.set("sender", userSender);
     tableMessage.set("receiver", userReceiver);
     tableMessage.set("cost", cost);
@@ -54,28 +93,69 @@ function saveTableMessage(userSender,userReceiver,cost,PointHomework,PointPaymen
     });
 }
 
-function verificarMensajePay(message,context){
+function verificarMensajePay(message,context,listMsg){
     if(message.meta){
         if(message.meta.title){
             if(message.meta.codeTransaction){//llegada del mensaje de pago
-                context.$.message_normal.hidden = false;
-                context.$.message_cotizacion.hidden = true; 
+                sendMessageChangeInput('en progreso',context);
+                return true;
             }
             else{
                 if(message.meta.costo){//La tarea a sido cotizada
-                    sendMessageChangeInput('cotizado',context);
+                    //sendMessageChangeInput('cotizado',context);
+                    habilitarChat(listMsg,context,3);
                 }else{//es una tarea nueva
                     sendMessageChangeInput('nuevo',context);
                 }
+                return false;
             }
+        }return false;
+    }return false;
+}
+
+function verificarTareaNoCotizada(listMsg,context,estado){
+    var tam = listMsg.length;//solo verificamos el ultimo mensaje
+    if(tam>0){
+        var msg = listMsg[tam-1];
+        if(verificarMensajePay(listMsg[tam-1],context,listMsg)){
+            return;
         }
+        //if(listMsg[tam-1].meta){
+            if(estado!='en progreso'/* && listMsg[tam-1].meta.costo*/){
+                habilitarChat(listMsg,context,3);
+            }
+        //}
+        
     }
 }
 
-function verificarTareaNoCotizada(listMsg,context){
+//habilitamos el chat para que pueda conversar un numero determinado de veces antes de que la tarea pase a en progreso
+function habilitarChat(listMsg,context,num){
     var tam = listMsg.length;//solo verificamos el ultimo mensaje
     if(tam>0){
-        verificarMensajePay(listMsg[tam-1],context);
+        var contador = 0;
+        if(tam==1){
+            sendMessageChangeInput('nuevo',context);
+            return;
+        }
+    
+       for(var i=0;i<tam;i++){//+1 por que el mensaje de cotizado no cuenta
+           
+           if(listMsg[i].who=="Profesor"){
+               contador++;
+           }
+       }
+       if(contador==num+1){//pasa a estado cotizado con un nuevo label en el inputmesage,pidiendo nueva cotizacion
+            sendMessageChangeInput('nuevo',context);
+            context.$.inputCotizar.label = "Enviar nueva cotizacion ...";
+            return;
+        }
+        if(contador>num){// solo sucede cuando ya envio nuva cotizacion
+            sendMessageChangeInput('cotizado',context);
+            return;
+        }
+       sendMessageChangeInput('en progreso',context);
+       context.$.inputnormal.label = "Solo tienes 3 mensajes para enviar ...";
     }
 }
 
@@ -105,6 +185,7 @@ function sendMessageChangeInput(estado,contexto){
     if(estado=='en progreso'){//puede hablar normalmente
         contexto.$.message_normal.hidden = false;
         contexto.$.message_cotizacion.hidden = true; 
+        contexto.$.inputnormal.label = "Typee message .."; 
     }
 }
 
@@ -268,4 +349,20 @@ function sendMsgFileChat(myurl,mychannel,context){
     context.$.inputnormal.disabled = false;
     context.$.inputnormal.enable=true; 
     context.$.inputnormal.label = "Type message...";
+}
+function verificarFechaTareas(expense){
+    var dateCurrent = new Date();
+    //console.log(dateCurrent.getDate() + "/" + (dateCurrent.getMonth() +1) + "/" + dateCurrent.getFullYear());
+    var parts =expense.get('homework').get('deadline').split('-');
+    var mydate = new Date(parts[0],parts[1]-1,parts[2]);
+    //console.log(mydate.getDate() + "/" + (mydate.getMonth() +1) + "/" + mydate.getFullYear());
+
+    if(mydate<dateCurrent){
+        console.log("finalizo! " + expense.get('title'));
+        var HomeworkClass = Parse.Object.extend("Homework");
+        var homework = new HomeworkClass();
+        homework.id = expense.get('homework').id;
+        homework.set('status','finalizado');
+        homework.save();
+    }
 }
