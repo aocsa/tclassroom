@@ -268,7 +268,7 @@
                            // Do something with the returned Parse.Object values
                            for (var i = 0; i < results.length; i++) {
                                var object = results[i];
-                               if (object.get('homework').get('status') === 'nuevo' || object.get('homework').get('status') === 'cotizado' ){
+                               if (object.get('homework').get('status') != 'en progreso' /*=== 'nuevo' || object.get('homework').get('status') === 'cotizado'*/ ){
                                  itemsArray.push({_id:object.get('homework').id,
                                                  sender_id : object.get('sender').id,
                                                  deadline: object.get('homework').get('deadline'),
